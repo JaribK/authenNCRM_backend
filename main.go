@@ -2,7 +2,10 @@ package main
 
 import (
 	"authenncrm/config"
+	"authenncrm/internal/handlers"
 	"authenncrm/internal/infrastructures"
+	"authenncrm/internal/repositories"
+	"authenncrm/internal/services"
 	"fmt"
 	"log"
 
@@ -16,23 +19,28 @@ func main() {
 
 	cfg := config.ReadInConfig()
 
-	_, err := infrastructures.ConnectDatabase(cfg)
+	db, err := infrastructures.ConnectDatabase(&cfg)
 	if err != nil {
 		log.Fatalf("Error connecting to database: %v", err)
 	}
 
+	healthCheckHandler := handlers.NewHealthCheckHandler()
+
+	userRepository := repositories.NewUserRepository(db)
+	userService := services.NewUserService(userRepository)
+	userHandler := handlers.NewUserHandler(userService)
+
 	app := fiber.New()
 
-	// db.AutoMigrate(
-	// 	&entities.User{},
-	// 	&entities.Role{},
-	// 	&entities.PointLogs{},
-	// )
+	app.Get("/health-check", healthCheckHandler.CheckHealth)
 
-	log.Println("Database migration completed successfully")
+	userGroup := app.Group("/users")
+	userGroup.Post("/", userHandler.CreateUser)
+	userGroup.Get("/:id", userHandler.GetUserById)
+	userGroup.Get("/", userHandler.GetAllUsers)
+	userGroup.Put("/:id", userHandler.UpdateUser)
+	userGroup.Delete("/:id", userHandler.DeleteUser)
 
-	//run server
-
-	app.Listen(fmt.Sprintf(":%v", cfg.AppPort))
-
+	log.Printf("Now server is running. Checking %v:%v/health-check", cfg.ServerHost, cfg.ServerPort)
+	app.Listen(fmt.Sprintf(":%v", cfg.ServerPort))
 }

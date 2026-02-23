@@ -5,7 +5,9 @@ import (
 )
 
 type Config struct {
-	AppPort    string
+	ServerHost string
+	ServerPort string
+	Secret     string
 	DBHost     string
 	DBPort     string
 	DBUser     string
@@ -15,7 +17,9 @@ type Config struct {
 
 func ReadInConfig() Config {
 	return Config{
-		AppPort:    viper.GetString("APP_PORT"),
+		ServerHost: viper.GetString("SERVER_HOST"),
+		ServerPort: viper.GetString("SERVER_PORT"),
+		Secret:     viper.GetString("SECRET"),
 		DBHost:     viper.GetString("DB_HOST"),
 		DBPort:     viper.GetString("DB_PORT"),
 		DBUser:     viper.GetString("DB_USER"),

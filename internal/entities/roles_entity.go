@@ -21,4 +21,9 @@ type (
 
 		Users []User `gorm:"foreignKey:RoleId"`
 	}
+
+	RoleRequest struct {
+		Name  string `json:"name"`
+		Level int    `json:"level"`
+	}
 )
