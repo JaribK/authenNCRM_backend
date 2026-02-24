@@ -1,4 +1,4 @@
-package middlewares
+package authentication
 
 import (
 	"authenncrm/config"
@@ -9,7 +9,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func AuthMiddleware(c fiber.Ctx, cfg *config.Config) error {
+func AuthMiddleware(c fiber.Ctx) error {
+	cfg := config.ReadInConfig()
 
 	authHeader := c.Get("Authorization")
 	if authHeader == "" {

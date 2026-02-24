@@ -3,7 +3,9 @@ module authenncrm
 go 1.25.0
 
 require (
+	github.com/fxamacker/cbor/v2 v2.9.0
 	github.com/google/uuid v1.6.0
+	golang.org/x/crypto v0.48.0
 	gorm.io/gorm v1.31.1
 )
 
@@ -22,7 +24,7 @@ require (
 	github.com/tinylib/msgp v1.6.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.69.0 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 )

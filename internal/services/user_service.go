@@ -1,10 +1,11 @@
 package services
 
 import (
+	"authenncrm/internal/constants"
 	"authenncrm/internal/entities"
 	"authenncrm/internal/repositories"
-
-	"github.com/google/uuid"
+	"authenncrm/internal/utils"
+	"errors"
 )
 
 type (
@@ -31,16 +32,22 @@ func (s *userService) CreateUser(request *entities.UserRequest) (*entities.UserR
 		return nil, err
 	}
 
+	if response := utils.ValidatePassword(request); response != constants.PassedValidation {
+		return nil, errors.New(response)
+	}
+
 	user := &entities.User{
 		Username:  request.Username,
 		Email:     request.Email,
 		FirstName: request.FirstName,
 		LastName:  request.LastName,
+		CreatedBy: utils.StringToUUID(request.CreatedBy),
+		UpdatedBy: utils.StringPtrToUUIDPtr(request.UpdatedBy),
 	}
 
 	if request.RoleId != nil {
-		roleId := uuid.MustParse(*request.RoleId)
-		user.RoleId = &roleId
+		roleId := utils.StringPtrToUUIDPtr(request.RoleId)
+		user.RoleId = roleId
 	}
 
 	if err := s.userRepo.CreateUser(user); err != nil {
@@ -53,7 +60,6 @@ func (s *userService) CreateUser(request *entities.UserRequest) (*entities.UserR
 		Email:     request.Email,
 		FirstName: request.FirstName,
 		LastName:  request.LastName,
-		Role:      user.Role,
 		Points:    0,
 	}
 
@@ -67,11 +73,17 @@ func (s *userService) GetUserById(id string) (*entities.UserResponse, error) {
 	}
 
 	response := &entities.UserResponse{
-		Id:       user.Id,
-		Username: user.Username,
-		Email:    user.Email,
-		Role:     user.Role,
-		Points:   0,
+		Id:        user.Id,
+		Username:  user.Username,
+		Email:     user.Email,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Role: &entities.RoleResponse{
+			Id:    user.Role.Id,
+			Name:  user.Role.Name,
+			Level: user.Role.Level,
+		},
+		Points: 0,
 	}
 
 	for _, log := range user.PointLogs {
@@ -93,8 +105,12 @@ func (s *userService) GetAllUsers() ([]entities.UserResponse, error) {
 			Id:       user.Id,
 			Username: user.Username,
 			Email:    user.Email,
-			Role:     user.Role,
-			Points:   0,
+			Role: &entities.RoleResponse{
+				Id:    user.Role.Id,
+				Name:  user.Role.Name,
+				Level: user.Role.Level,
+			},
+			Points: 0,
 		}
 
 		for _, log := range user.PointLogs {

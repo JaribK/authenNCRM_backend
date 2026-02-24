@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/fxamacker/cbor/v2"
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -30,16 +31,28 @@ func main() {
 	userService := services.NewUserService(userRepository)
 	userHandler := handlers.NewUserHandler(userService)
 
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		CBOREncoder: cbor.Marshal,
+		CBORDecoder: cbor.Unmarshal,
+	})
 
 	app.Get("/health-check", healthCheckHandler.CheckHealth)
 
-	userGroup := app.Group("/users")
-	userGroup.Post("/", userHandler.CreateUser)
-	userGroup.Get("/:id", userHandler.GetUserById)
-	userGroup.Get("/", userHandler.GetAllUsers)
-	userGroup.Put("/:id", userHandler.UpdateUser)
-	userGroup.Delete("/:id", userHandler.DeleteUser)
+	apiV1 := app.Group("/api/v1")
+
+	// authenticationGroup := apiV1.Group("/auth")
+	// authenticationGroup.Post("/login", "")
+	// authenticationGroup.Post("/refresh-token", "")
+	// authenticationGroup.Post("/logout", "", authentication.AuthMiddleware)
+	// authenticationGroup.Post("/register", "")
+	// authenticationGroup.Post("/reset-password", "")
+
+	userGroup := apiV1.Group("/users")
+	userGroup.Post("", userHandler.CreateUser)
+	userGroup.Get("/:userId", userHandler.GetUserById)
+	userGroup.Get("", userHandler.GetAllUsers)
+	userGroup.Put("/:userId", userHandler.UpdateUser)
+	userGroup.Delete("/:userId", userHandler.DeleteUser)
 
 	log.Printf("Now server is running. Checking %v:%v/health-check", cfg.ServerHost, cfg.ServerPort)
 	app.Listen(fmt.Sprintf(":%v", cfg.ServerPort))

@@ -26,4 +26,10 @@ type (
 		Name  string `json:"name"`
 		Level int    `json:"level"`
 	}
+
+	RoleResponse struct {
+		Id    uuid.UUID `json:"id"`
+		Name  string    `json:"name"`
+		Level int       `json:"level"`
+	}
 )

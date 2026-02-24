@@ -29,7 +29,7 @@ func NewUserHandler(userService services.UserService) UserHandler {
 func (h *userHandler) CreateUser(c fiber.Ctx) error {
 	var request entities.UserRequest
 
-	if err := c.Bind().CBOR(&request); err != nil {
+	if err := c.Bind().Body(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":  "Invalid request body.",
 			"detail": err.Error(),
@@ -55,7 +55,7 @@ func (h *userHandler) CreateUser(c fiber.Ctx) error {
 }
 
 func (h *userHandler) GetUserById(c fiber.Ctx) error {
-	id := c.Params("id")
+	id := c.Params("userId")
 
 	user, err := h.userService.GetUserById(id)
 	if err != nil {
@@ -79,10 +79,10 @@ func (h *userHandler) GetAllUsers(c fiber.Ctx) error {
 }
 
 func (h *userHandler) UpdateUser(c fiber.Ctx) error {
-	id := c.Params("id")
+	id := c.Params("userId")
 
 	var request entities.UserRequest
-	if err := c.Bind().CBOR(&request); err != nil {
+	if err := c.Bind().Body(&request); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request body",
 		})

@@ -41,13 +41,13 @@ type (
 	}
 
 	UserResponse struct {
-		Id        uuid.UUID `json:"id"`
-		Username  string    `json:"username"`
-		Email     *string   `json:"email"`
-		FirstName string    `json:"firstName"`
-		LastName  string    `json:"lastName"`
-		Role      *Role     `json:"role"`
-		Points    int       `json:"points"`
+		Id        uuid.UUID     `json:"id"`
+		Username  string        `json:"username"`
+		Email     *string       `json:"email"`
+		FirstName string        `json:"firstName"`
+		LastName  string        `json:"lastName"`
+		Role      *RoleResponse `json:"role"`
+		Points    int           `json:"points"`
 	}
 )
 
