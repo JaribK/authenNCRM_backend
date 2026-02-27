@@ -31,6 +31,9 @@ func main() {
 	userService := services.NewUserService(userRepository)
 	userHandler := handlers.NewUserHandler(userService)
 
+	authService := services.NewAuthenticationService(userRepository, &cfg)
+	authHandler := handlers.NewAuthenticationHandler(authService)
+
 	app := fiber.New(fiber.Config{
 		CBOREncoder: cbor.Marshal,
 		CBORDecoder: cbor.Unmarshal,
@@ -40,8 +43,8 @@ func main() {
 
 	apiV1 := app.Group("/api/v1")
 
-	// authenticationGroup := apiV1.Group("/auth")
-	// authenticationGroup.Post("/login", "")
+	authenticationGroup := apiV1.Group("/auth")
+	authenticationGroup.Post("/login", authHandler.Login)
 	// authenticationGroup.Post("/refresh-token", "")
 	// authenticationGroup.Post("/logout", "", authentication.AuthMiddleware)
 	// authenticationGroup.Post("/register", "")

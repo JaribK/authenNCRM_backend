@@ -18,7 +18,7 @@ type TokenCustomClaims struct {
 	jwt.RegisteredClaims `json:"registeredClaims,omitempty"`
 }
 
-func GenerateToken(user entities.User, config *config.Config) (string, error) {
+func GenerateToken(user *entities.User, config *config.Config) (string, error) {
 	claims := TokenCustomClaims{
 		UserId:    user.Id.String(),
 		Username:  user.Username,
@@ -40,7 +40,7 @@ func GenerateToken(user entities.User, config *config.Config) (string, error) {
 	return token.SignedString([]byte(config.Secret))
 }
 
-func GenerateRefreshToken(user entities.User, config *config.Config) (string, error) {
+func GenerateRefreshToken(user *entities.User, config *config.Config) (string, error) {
 	claims := TokenCustomClaims{
 		UserId: user.Id.String(),
 		RegisteredClaims: jwt.RegisteredClaims{

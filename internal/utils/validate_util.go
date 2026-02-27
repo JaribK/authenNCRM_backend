@@ -3,21 +3,21 @@ package utils
 import (
 	"authenncrm/internal/constants"
 	"authenncrm/internal/entities"
+	"fmt"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func ValidatePassword(user *entities.UserRequest) string {
 
-	//check confirm password
 	if user.Password != user.ConfirmPassword {
 		return constants.PasswordMismatchError
 	}
 
-	//check password length
 	if len(user.Password) < 8 {
 		return constants.PasswordLengthError
 	}
 
-	//check password complexity
 	hasUpper := false
 	hasLower := false
 	hasDigit := false
@@ -41,4 +41,14 @@ func ValidatePassword(user *entities.UserRequest) string {
 	}
 
 	return constants.PassedValidation
+}
+
+func CheckPasswordEncryption(password string, encryptedPassword string) bool {
+
+	if err := bcrypt.CompareHashAndPassword([]byte(encryptedPassword), []byte(password)); err != nil {
+		fmt.Println(err)
+		return false
+	}
+
+	return true
 }

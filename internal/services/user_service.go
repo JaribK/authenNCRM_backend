@@ -38,6 +38,7 @@ func (s *userService) CreateUser(request *entities.UserRequest) (*entities.UserR
 
 	user := &entities.User{
 		Username:  request.Username,
+		Password:  request.Password,
 		Email:     request.Email,
 		FirstName: request.FirstName,
 		LastName:  request.LastName,

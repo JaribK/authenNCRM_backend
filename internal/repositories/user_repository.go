@@ -12,11 +12,11 @@ type (
 		CreateUser(user *entities.User) error
 		GetUsers() ([]entities.User, error)
 		GetUserById(id string) (*entities.User, error)
-		GetUserByUsername(username string) (*entities.User, error)
 		UpdateUser(user *entities.User) error
 		DeleteUser(id string) error
 
 		CheckUserNameOrEmailExists(request *entities.UserRequest) error
+		CheckUserIdentifierExists(identifier string) (*entities.User, error)
 	}
 
 	userRepository struct {
@@ -49,17 +49,6 @@ func (r *userRepository) GetUserById(id string) (*entities.User, error) {
 		Preload("Role").
 		Preload("PointLogs").
 		Where("id = ?", id).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-func (r *userRepository) GetUserByUsername(username string) (*entities.User, error) {
-	var user entities.User
-	if err := r.db.
-		Preload("Role").
-		Preload("PointLogs").
-		Where("username = ?", username).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -108,4 +97,15 @@ func (r *userRepository) CheckUserNameOrEmailExists(request *entities.UserReques
 	}
 
 	return nil
+}
+
+func (r *userRepository) CheckUserIdentifierExists(identifier string) (*entities.User, error) {
+	var user entities.User
+
+	if err := r.db.Preload("Role").Where("username = ? OR email = ?", identifier, identifier).First(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"authenncrm/internal/entities"
 	"authenncrm/internal/services"
+	"authenncrm/pkg/responses"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
@@ -30,10 +31,7 @@ func (h *userHandler) CreateUser(c fiber.Ctx) error {
 	var request entities.UserRequest
 
 	if err := c.Bind().Body(&request); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error":  "Invalid request body.",
-			"detail": err.Error(),
-		})
+		return responses.BuildErrorResponse(c, fiber.StatusBadRequest, err.Error(), "-")
 	}
 
 	claims := c.Locals("claims").(jwt.MapClaims)
@@ -41,16 +39,10 @@ func (h *userHandler) CreateUser(c fiber.Ctx) error {
 
 	response, err := h.userService.CreateUser(&request)
 	if err != nil {
-		return c.Status(fiber.StatusUnprocessableEntity).JSON(fiber.Map{
-			"error":  "Failed to create user.",
-			"detail": err.Error(),
-		})
+		return responses.BuildErrorResponse(c, fiber.StatusUnprocessableEntity, err.Error(), "-")
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"message": "User created successfully.",
-		"detail":  response,
-	})
+	return responses.BuildResponse(c, fiber.StatusCreated, "User created successfully", response, "-")
 
 }
 
@@ -59,23 +51,19 @@ func (h *userHandler) GetUserById(c fiber.Ctx) error {
 
 	user, err := h.userService.GetUserById(id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error": "User not found",
-		})
+		return responses.BuildErrorResponse(c, fiber.StatusNotFound, err.Error(), "-")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(user)
+	return responses.BuildResponse(c, fiber.StatusOK, "User retrieved successfully", user, "-")
 }
 
 func (h *userHandler) GetAllUsers(c fiber.Ctx) error {
 	users, err := h.userService.GetAllUsers()
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to retrieve users",
-		})
+		return responses.BuildErrorResponse(c, fiber.StatusInternalServerError, err.Error(), "-")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(users)
+	return responses.BuildResponse(c, fiber.StatusOK, "Users retrieved successfully", users, "-")
 }
 
 func (h *userHandler) UpdateUser(c fiber.Ctx) error {
@@ -83,31 +71,22 @@ func (h *userHandler) UpdateUser(c fiber.Ctx) error {
 
 	var request entities.UserRequest
 	if err := c.Bind().Body(&request); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Invalid request body",
-		})
+		return responses.BuildErrorResponse(c, fiber.StatusBadRequest, err.Error(), "-")
+
 	}
 
 	if err := h.userService.UpdateUser(id, &request); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to update user",
-		})
+		return responses.BuildErrorResponse(c, fiber.StatusInternalServerError, err.Error(), "-")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "User updated successfully",
-	})
+	return responses.BuildResponse(c, fiber.StatusOK, "User updated successfully", request, "-")
 }
 
 func (h *userHandler) DeleteUser(c fiber.Ctx) error {
 	id := c.Params("id")
 	if err := h.userService.DeleteUser(id); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Failed to delete user",
-		})
+		return responses.BuildErrorResponse(c, fiber.StatusInternalServerError, err.Error(), "-")
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"message": "User deleted successfully",
-	})
+	return responses.BuildResponse(c, fiber.StatusNoContent, "User deleted successfully", nil, "-")
 }
